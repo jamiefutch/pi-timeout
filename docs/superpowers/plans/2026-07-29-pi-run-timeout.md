@@ -937,7 +937,7 @@ import { describe, expect, it, vi } from "vitest";
 // Mock pi so this test runs without the real runtime. Hoisted above the import.
 vi.mock("@earendil-works/pi-coding-agent", () => ({
   isToolCallEventType: (name: string, ev: { toolName: string }) => ev.toolName === name,
-  getSettingsPath: () => "/mock/global-settings.json",
+  getAgentDir: () => "/mock/agent",
 }));
 
 import runTimeoutExtension from "../extensions/run-timeout.ts";
@@ -1013,7 +1013,7 @@ describe("runTimeoutExtension", () => {
     runTimeoutExtension(pi as never, { loadConfig });
     const event = { toolName: "bash", input: { command: "./app" } };
     await pi.handlers.tool_call!(event, { cwd: "/my/proj" });
-    expect(loadConfig).toHaveBeenCalledWith("/my/proj", "/mock/global-settings.json");
+    expect(loadConfig).toHaveBeenCalledWith("/my/proj", "/mock/agent/settings.json");
   });
 });
 ```
@@ -1039,7 +1039,8 @@ Create `extensions/run-timeout.ts`:
  * This is the only file that imports @earendil-works/pi-coding-agent.
  */
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { getSettingsPath, isToolCallEventType } from "@earendil-works/pi-coding-agent";
+import { getAgentDir, isToolCallEventType } from "@earendil-works/pi-coding-agent";
+import { join } from "node:path";
 import type { RunTimeoutConfig } from "../src/config.ts";
 import { type ToolInput, handleToolCall } from "../src/handler.ts";
 import { loadConfig } from "../src/load-settings.ts";
@@ -1054,7 +1055,10 @@ export default function runTimeoutExtension(pi: ExtensionAPI, deps: RunTimeoutDe
 
   pi.on("tool_call", (event, ctx) => {
     if (!isToolCallEventType("bash", event)) return undefined;
-    const config = load(ctx.cwd, getSettingsPath());
+    // pi's getSettingsPath() is not exported from the package root; getAgentDir() is.
+    // getSettingsPath() === join(getAgentDir(), "settings.json") in pi source.
+    const globalPath = join(getAgentDir(), "settings.json");
+    const config = load(ctx.cwd, globalPath);
     handleToolCall(event.toolName, event.input as ToolInput, config);
     return undefined;
   });

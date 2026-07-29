@@ -25,7 +25,7 @@ Confirmed against pi source at `/Users/jamiefutch/projects/cloned/pi`:
 - The bash tool's `timeout` input field is in **seconds** (`packages/coding-agent/src/core/tools/bash.ts`: schema description "Timeout in seconds"; internally `timeout * 1000`). Must be a positive finite number; ceiling `MAX_TIMEOUT_SECONDS = 2_147_483.647`. On elapsing, pi kills the whole process tree and throws `timeout:<seconds>`, which surfaces as a tool error returning control to pi.
 - The `tool_call` extension event fires before a tool executes; `event.input` is **mutable**, mutations flow into the tool's `execute`, and **no re-validation** runs after mutation (`docs/extensions.md`, `src/core/extensions/types.ts`).
 - `isToolCallEventType("bash", event)` narrows `event.input` to `BashToolInput` (`{ command: string; timeout?: number }`).
-- `ExtensionContext.cwd: string` is available in the handler; `getSettingsPath()` is exported from `src/config.ts`.
+- `ExtensionContext.cwd: string` is available in the handler. `getSettingsPath()` lives in `src/config.ts` but is **not** re-exported from the package root; `getAgentDir()` **is** exported, and `getSettingsPath() === join(getAgentDir(), "settings.json")`, so the extension computes the global settings path from `getAgentDir()`.
 - Extensions are loaded via `jiti` (`src/core/extensions/loader.ts`); relative `.ts` imports resolve.
 - There is **no** sanctioned extension API for reading settings; reading `settings.json` files directly is the correct approach.
 - Pi package manifest: `package.json` with `keywords: ["pi-package"]` and `pi.extensions: ["./extensions"]`; local install via `settings.json` `packages: ["/abs/path"]`.
@@ -127,7 +127,7 @@ interface RunTimeoutConfig {
 ```
 tool_call event
   → isToolCallEventType("bash", event)?  (else no-op)
-  → loadConfig(ctx.cwd, getSettingsPath()) → RunTimeoutConfig
+  → loadConfig(ctx.cwd, join(getAgentDir(), "settings.json")) → RunTimeoutConfig
   → classifyCommand(event.input.command)
   → resolveTimeout(classification, event.input.timeout, cfg.maxSeconds, cfg.fallbackMaxSeconds)
   → if defined: event.input.timeout = value   (mutation honored by pi)
