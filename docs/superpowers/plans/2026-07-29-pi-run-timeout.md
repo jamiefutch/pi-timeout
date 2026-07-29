@@ -26,7 +26,7 @@
 
 | File | Responsibility |
 |------|----------------|
-| `package.json` | rtk npm + pi manifest (`pi-package` keyword, `pi.extensions`, `files` allowlist — publish-ready). |
+| `package.json` | npm + pi manifest (`pi-package` keyword, `pi.extensions`, `files` allowlist — publish-ready). |
 | `tsconfig.json` | Strict ESM TS config. |
 | `vitest.config.ts` | Vitest config. |
 | `.gitignore` | `node_modules`, `dist`, coverage. |
@@ -370,7 +370,7 @@ const SAFE_TOOL_VERBS: Array<{ tool: RegExp; verbs: Set<string> }> = [
   { tool: /^cargo$/, verbs: new Set(["build", "test", "check", "clippy", "fmt", "clean", "fetch"]) },
   { tool: /^dotnet$/, verbs: new Set(["build", "test", "restore", "clean", "add", "list", "new", "pack", "publish"]) },
   { tool: /^go$/, verbs: new Set(["build", "test", "vet", "mod", "get", "fmt", "clean", "install"]) },
-  { tool: /^(?:npm|rtk pnpm|rtk yarn|bun)$/, verbs: new Set(["install", "i", "add", "ci", "test", "lint", "build", "update", "outdated", "list", "ls", "remove", "rm", "publish", "pack"]) },
+  { tool: /^(?:npm|pnpm|yarn|bun)$/, verbs: new Set(["install", "i", "add", "ci", "test", "lint", "build", "update", "outdated", "list", "ls", "remove", "rm", "publish", "pack"]) },
   { tool: /^pip3?$/, verbs: new Set(["install", "freeze", "list", "show", "uninstall"]) },
 ];
 
