@@ -63,6 +63,18 @@ describe("handleToolCall", () => {
     expect(input.timeout).toBe(5);
   });
 
+  it("treats a NaN explicit timeout as absent (run -> maxSeconds)", () => {
+    const input: ToolInput = { command: "./app", timeout: NaN };
+    handleToolCall("bash", input, cfg);
+    expect(input.timeout).toBe(30);
+  });
+
+  it("treats an Infinity explicit timeout as absent (unknown -> fallback)", () => {
+    const input: ToolInput = { command: "sleep 5", timeout: Infinity };
+    handleToolCall("bash", input, cfg);
+    expect(input.timeout).toBe(120);
+  });
+
   it("is inert when config is empty", () => {
     const input: ToolInput = { command: "./app" };
     handleToolCall("bash", input, {});

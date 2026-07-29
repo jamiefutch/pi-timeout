@@ -41,7 +41,8 @@ export function handleToolCall(
   if (typeof input !== "object" || input === null) return;
   if (typeof input.command !== "string") return;
 
-  const explicit = typeof input.timeout === "number" ? input.timeout : undefined;
+  const explicit =
+    typeof input.timeout === "number" && Number.isFinite(input.timeout) ? input.timeout : undefined;
   const classification = classifyCommand(input.command);
   const next = resolveTimeout(classification, explicit, config);
   if (next !== undefined) {

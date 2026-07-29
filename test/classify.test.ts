@@ -105,6 +105,12 @@ describe("classifyCommand — wrappers", () => {
   it("strips time", () => {
     expect(classifyCommand("time cargo build")).toBe("safe");
   });
+  it("strips command", () => {
+    expect(classifyCommand("command ./app")).toBe("run");
+  });
+  it("strips exec", () => {
+    expect(classifyCommand("exec ./app")).toBe("run");
+  });
 });
 
 describe("classifyCommand — compound chains", () => {
@@ -121,6 +127,10 @@ describe("classifyCommand — compound chains", () => {
   it("handles pipes and semicolons", () => {
     expect(classifyCommand("ls | grep foo")).toBe("safe");
     expect(classifyCommand("make; ./out/app")).toBe("run");
+  });
+  it("handles the || operator", () => {
+    expect(classifyCommand("git status || ./app")).toBe("run");
+    expect(classifyCommand("false || git status")).toBe("safe");
   });
   it("empty / whitespace command is unknown", () => {
     expect(classifyCommand("")).toBe("unknown");

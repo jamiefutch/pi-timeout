@@ -5,6 +5,9 @@
   "type": "module",
   "keywords": ["pi-package"],
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "files": ["extensions", "src", "README.md"],
   "scripts": {
     "test": "vitest run",
