@@ -9,6 +9,34 @@ You configure a maximum run time in pi's `settings.json`. pi injects it as the
 bash tool's `timeout`, so the command's whole process tree is killed at the cap
 and control returns to pi with a `timeout:<seconds>` result.
 
+## What you're installing
+
+The actual extension is a single TypeScript file:
+
+**`extensions/run-timeout.ts`**
+
+pi discovers it through the `pi` manifest in `package.json`:
+
+```json
+{ "pi": { "extensions": ["./extensions"] } }
+```
+
+pi loads every `.ts`/`.js` file under `extensions/` with its built-in TypeScript
+loader — **no compile step**. `extensions/run-timeout.ts` is a thin adapter
+(~30 lines): it registers a `tool_call` listener and delegates all real work to
+the pure, dependency-free modules under `src/`.
+
+| File | Role |
+|------|------|
+| `extensions/run-timeout.ts` | **The extension pi loads.** Registers the `tool_call` hook. Only file that imports pi. |
+| `src/classify.ts` | Classifies a command as `run` / `safe` / `unknown`. |
+| `src/config.ts` | Parses / validates / clamps / merges `runTimeout`. |
+| `src/load-settings.ts` | Reads global + project `settings.json`. |
+| `src/handler.ts` | Resolves the timeout and mutates the tool call input. |
+
+So installing the package means pointing pi at this folder; the entry point it
+actually runs is `extensions/run-timeout.ts`.
+
 ## How it works
 
 On every `bash` tool call the extension:
@@ -103,6 +131,51 @@ Project override — global sets a loose fallback; this project wants a tight ca
 // Effective: maxSeconds = 10 (project), fallbackMaxSeconds = 300 (global)
 ```
 
+## Build
+
+**There is no build step to use the package.** pi loads the TypeScript
+extension directly, so you never compile or bundle anything for pi to run it.
+
+For development, install the dev tooling once:
+
+```bash
+npm install
+```
+
+Then use the checks (full test suite + strict typecheck):
+
+```bash
+npm test          # vitest run — 112 tests
+npm run typecheck # tsc --noEmit — strict type check
+```
+
+## Run
+
+### Run it in pi (normal use)
+
+1. **Install** — add the package to `packages` in `~/.pi/agent/settings.json`
+   (see [Install](#install)).
+2. **Configure** — set `runTimeout.maxSeconds` and/or
+   `runTimeout.fallbackMaxSeconds` (see [Configure](#configure)).
+3. **Restart pi.** The extension loads automatically and caps bash commands
+   from then on.
+
+Smoke test that it's active — with `runTimeout.maxSeconds: 3` set, ask pi:
+
+```text
+Run this exact bash command: sleep 30
+```
+
+pi should return in ~3 seconds with a `timeout:3` result instead of waiting 30
+seconds.
+
+### Run the test suite (development)
+
+```bash
+npm test            # run all tests once
+npm run test:watch  # re-run on change
+```
+
 ## Classification reference
 
 Commands are split on `&&`, `||`, `;`, and `|`, and leading wrappers (`sudo`,
@@ -174,22 +247,10 @@ Yes. pi's bash `timeout` is in seconds; this package matches it.
 
 ## Development
 
-```bash
-npm install
-npm test          # vitest run
-npm run typecheck # tsc --noEmit
-```
-
-Architecture — all decision logic is pure and dependency-free under `src/`;
-only `extensions/run-timeout.ts` imports pi:
-
-| Module | Responsibility |
-|--------|----------------|
-| `src/classify.ts` | Segment-aware command classifier. |
-| `src/config.ts` | Parse / validate / clamp / merge `runTimeout`. |
-| `src/load-settings.ts` | Read global + project `settings.json`. |
-| `src/handler.ts` | Resolve timeout and mutate the tool call input. |
-| `extensions/run-timeout.ts` | Thin pi `tool_call` wiring. |
+All decision logic is pure and dependency-free under `src/`; only
+`extensions/run-timeout.ts` imports pi (see
+[What you're installing](#what-youre-installing)). For build and test commands
+see [Build](#build) and [Run](#run).
 
 ## License
 
