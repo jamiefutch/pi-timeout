@@ -141,7 +141,7 @@ npm install
 Then use the checks (full test suite + strict typecheck):
 
 ```bash
-npm test          # vitest run — 112 tests
+npm test          # vitest run — 6 tests
 npm run typecheck # tsc --noEmit — strict type check
 ```
 
