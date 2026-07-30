@@ -74,7 +74,7 @@ Restart pi. The extension loads automatically.
 The package is structured for publishing with no changes. Once published:
 
 ```json
-{ "packages": ["npm:pi-timeout"] }
+{ "packages": ["npm:@jamiefutch/pi-timeout"] }
 ```
 
 or
