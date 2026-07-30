@@ -1,13 +1,9 @@
 # pi-timeout
 
-A [pi](https://pi.dev) package that stops pi from waiting indefinitely when it
-runs commands through the `bash` tool — for example, when pi builds your
-program and then runs the resulting binary, which might block forever on stdin,
-a socket, or a server loop.
-
-You configure a maximum run time in pi's `settings.json`. pi injects it as the
-bash tool's `timeout`, so the command's whole process tree is killed at the cap
-and control returns to pi with a `timeout:<seconds>` result.
+Stop pi from hanging on runaway `bash` commands. Set a max runtime in
+`settings.json` — pi kills the process tree at the cap and returns control with
+a `timeout:<seconds>` error. No more waiting forever on a stuck build or
+server.
 
 ## What you're installing
 
