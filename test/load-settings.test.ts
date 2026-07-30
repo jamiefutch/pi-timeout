@@ -7,7 +7,7 @@ import { loadConfig, readJsonFile } from "../src/load-settings.ts";
 let dir: string;
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "pi-run-timeout-"));
+  dir = mkdtempSync(join(tmpdir(), "pi-timeout-"));
 });
 
 afterEach(() => {

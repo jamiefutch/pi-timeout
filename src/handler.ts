@@ -1,5 +1,5 @@
 /**
- * Resolution + handler core for pi-run-timeout. Pure, no pi imports.
+ * Resolution + handler core for pi-timeout. Pure, no pi imports.
  * Decides the timeout for a bash tool call and applies it by mutating
  * input.timeout in place (pi's tool_call contract: event.input is mutable and
  * no re-validation runs after mutation).

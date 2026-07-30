@@ -1,5 +1,5 @@
 /**
- * Settings parsing for pi-run-timeout. Pure, no I/O.
+ * Settings parsing for pi-timeout. Pure, no I/O.
  * Units are seconds (pi's bash `timeout` unit). Values must be positive finite
  * numbers and are clamped to MAX_TIMEOUT_SECONDS (pi's bash tool ceiling).
  */

@@ -1,4 +1,4 @@
-# pi-run-timeout Design Spec
+# pi-timeout Design Spec
 
 **Date:** 2026-07-29
 **Status:** Approved (design); pending user review of this written spec.
@@ -113,7 +113,7 @@ All decision logic lives in dependency-free pure modules under `src/` (only `nod
 | `src/config.ts` | Parse/validate/clamp both settings keys; per-key project-overrides-global merge. No I/O. | `MAX_TIMEOUT_SECONDS`, `parseRunTimeout(settings): RunTimeoutConfig`, `mergeRunTimeout(global, project): RunTimeoutConfig` |
 | `src/load-settings.ts` | Read global + project `settings.json`, delegate to `config.ts`. `node:fs` only. | `readJsonFile(path): unknown \| undefined`, `loadConfig(cwd, globalPath): RunTimeoutConfig` |
 | `src/handler.ts` | Given a tool call + config, classify → resolve → mutate `input.timeout`. No pi import. | `handleToolCall(toolName, input: ToolInput, config: RunTimeoutConfig): void` |
-| `extensions/run-timeout.ts` | Thin pi wiring: register `tool_call`, call `loadConfig(ctx.cwd, getSettingsPath())`, delegate to `handler.ts`. **Only file importing `@earendil-works/pi-coding-agent`.** | default `runTimeoutExtension(pi, deps?)` |
+| `extensions/pi-timeout.ts` | Thin pi wiring: register `tool_call`, call `loadConfig(ctx.cwd, getSettingsPath())`, delegate to `handler.ts`. **Only file importing `@earendil-works/pi-coding-agent`.** | default `runTimeoutExtension(pi, deps?)` |
 
 Shared type:
 ```typescript
@@ -138,7 +138,7 @@ tool_call event
 ## 8. Packaging & distribution
 
 `package.json`:
-- `name: "pi-run-timeout"`, `version: "0.1.0"`, `type: "module"`.
+- `name: "pi-timeout"`, `version: "0.1.0"`, `type: "module"`.
 - `keywords: ["pi-package"]`.
 - `pi: { "extensions": ["./extensions"] }`.
 - `files: ["extensions", "src", "README.md"]` (publish-ready; no hardcoded paths).
@@ -149,9 +149,9 @@ tool_call event
 Install (local, v1):
 ```json
 // ~/.pi/agent/settings.json
-{ "packages": ["/absolute/path/to/pi-run-timeout"] }
+{ "packages": ["/absolute/path/to/pi-timeout"] }
 ```
-Publishing to npm (`npm:pi-run-timeout`) or git (`git:github.com/you/pi-run-timeout`) later requires no structural change.
+Publishing to npm (`npm:pi-timeout`) or git (`git:github.com/you/pi-timeout`) later requires no structural change.
 
 ## 9. Testing strategy
 

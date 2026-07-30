@@ -6,7 +6,7 @@ vi.mock("@earendil-works/pi-coding-agent", () => ({
   getAgentDir: () => "/mock/agent",
 }));
 
-import runTimeoutExtension from "../extensions/run-timeout.ts";
+import runTimeoutExtension from "../extensions/pi-timeout.ts";
 
 type MockEvent = { toolName: string; input: { command?: string; timeout?: number; path?: string } };
 

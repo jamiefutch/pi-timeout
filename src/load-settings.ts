@@ -1,5 +1,5 @@
 /**
- * Filesystem loader for pi-run-timeout. Reads the global and project pi
+ * Filesystem loader for pi-timeout. Reads the global and project pi
  * settings.json files and merges the runTimeout config. node: builtins only;
  * this module never imports pi (the caller supplies the global settings path).
  */

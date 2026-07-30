@@ -1,5 +1,5 @@
 /**
- * pi-run-timeout extension.
+ * pi-timeout extension.
  *
  * On every bash tool_call: load runTimeout config from merged pi settings
  * (project overrides global), classify the command, and inject a timeout cap

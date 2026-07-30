@@ -1,4 +1,4 @@
-# pi-run-timeout
+# pi-timeout
 
 A [pi](https://pi.dev) package that stops pi from waiting indefinitely when it
 runs commands through the `bash` tool — for example, when pi builds your
@@ -13,7 +13,7 @@ and control returns to pi with a `timeout:<seconds>` result.
 
 The actual extension is a single TypeScript file:
 
-**`extensions/run-timeout.ts`**
+**`extensions/pi-timeout.ts`**
 
 pi discovers it through the `pi` manifest in `package.json`:
 
@@ -22,20 +22,20 @@ pi discovers it through the `pi` manifest in `package.json`:
 ```
 
 pi loads every `.ts`/`.js` file under `extensions/` with its built-in TypeScript
-loader — **no compile step**. `extensions/run-timeout.ts` is a thin adapter
+loader — **no compile step**. `extensions/pi-timeout.ts` is a thin adapter
 (~30 lines): it registers a `tool_call` listener and delegates all real work to
 the pure, dependency-free modules under `src/`.
 
 | File | Role |
 |------|------|
-| `extensions/run-timeout.ts` | **The extension pi loads.** Registers the `tool_call` hook. Only file that imports pi. |
+| `extensions/pi-timeout.ts` | **The extension pi loads.** Registers the `tool_call` hook. Only file that imports pi. |
 | `src/classify.ts` | Classifies a command as `run` / `safe` / `unknown`. |
 | `src/config.ts` | Parses / validates / clamps / merges `runTimeout`. |
 | `src/load-settings.ts` | Reads global + project `settings.json`. |
 | `src/handler.ts` | Resolves the timeout and mutates the tool call input. |
 
 So installing the package means pointing pi at this folder; the entry point it
-actually runs is `extensions/run-timeout.ts`.
+actually runs is `extensions/pi-timeout.ts`.
 
 ## How it works
 
@@ -67,7 +67,7 @@ Add the absolute path to the package in your pi settings:
 ```json
 // ~/.pi/agent/settings.json
 {
-  "packages": ["/absolute/path/to/pi-run-timeout"]
+  "packages": ["/absolute/path/to/pi-timeout"]
 }
 ```
 
@@ -78,13 +78,13 @@ Restart pi. The extension loads automatically.
 The package is structured for publishing with no changes. Once published:
 
 ```json
-{ "packages": ["npm:pi-run-timeout"] }
+{ "packages": ["npm:pi-timeout"] }
 ```
 
 or
 
 ```json
-{ "packages": ["git:github.com/you/pi-run-timeout"] }
+{ "packages": ["git:github.com/you/pi-timeout"] }
 ```
 
 ## Configure
@@ -248,7 +248,7 @@ Yes. pi's bash `timeout` is in seconds; this package matches it.
 ## Development
 
 All decision logic is pure and dependency-free under `src/`; only
-`extensions/run-timeout.ts` imports pi (see
+`extensions/pi-timeout.ts` imports pi (see
 [What you're installing](#what-youre-installing)). For build and test commands
 see [Build](#build) and [Run](#run).
 

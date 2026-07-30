@@ -1,5 +1,5 @@
 /**
- * Segment-aware command classifier for pi-run-timeout. Pure, no I/O.
+ * Segment-aware command classifier for pi-timeout. Pure, no I/O.
  *
  * Splits a command on chain/pipe operators, strips leading wrappers
  * (sudo/nohup/time/command/exec/env and VAR=val assignments), classifies each

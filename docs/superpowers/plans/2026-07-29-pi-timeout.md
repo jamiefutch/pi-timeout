@@ -1,20 +1,20 @@
-# pi-run-timeout Implementation Plan
+# pi-timeout Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a pi package that stops pi waiting indefinitely on run-style `bash` commands: recognized program-run commands are capped at `runTimeout.maxSeconds`, any other non-safe command at `runTimeout.fallbackMaxSeconds`, and known-safe tooling (git/build/test/install) is never capped.
 
-**Architecture:** A pi extension hooks the `tool_call` event. For `bash` calls it loads `runTimeout` from merged pi settings (project overrides global), classifies the command with a segment-aware heuristic (split on `&& || ; |`, strip wrappers like `sudo`/`env VAR=`, classify each segment), resolves a timeout (`safe -> none`, `run -> maxSeconds ?? fallbackMaxSeconds`, `unknown -> fallbackMaxSeconds`, explicit model timeout always wins), and mutates `event.input.timeout` (seconds). Pi's bash tool then kills the process tree at the cap and returns `timeout:<seconds>`. All logic is in dependency-free pure modules that are unit-tested; only `extensions/run-timeout.ts` imports pi.
+**Architecture:** A pi extension hooks the `tool_call` event. For `bash` calls it loads `runTimeout` from merged pi settings (project overrides global), classifies the command with a segment-aware heuristic (split on `&& || ; |`, strip wrappers like `sudo`/`env VAR=`, classify each segment), resolves a timeout (`safe -> none`, `run -> maxSeconds ?? fallbackMaxSeconds`, `unknown -> fallbackMaxSeconds`, explicit model timeout always wins), and mutates `event.input.timeout` (seconds). Pi's bash tool then kills the process tree at the cap and returns `timeout:<seconds>`. All logic is in dependency-free pure modules that are unit-tested; only `extensions/pi-timeout.ts` imports pi.
 
 **Tech Stack:** TypeScript (strict, ESM), Vitest, `node:fs`/`node:path`, `@earendil-works/pi-coding-agent` (peer + dev dep; types + `isToolCallEventType` + `getSettingsPath`).
 
-**Spec:** `docs/superpowers/specs/2026-07-29-pi-run-timeout-design.md` (approved). Pi source for reference: `/Users/jamiefutch/projects/cloned/pi`.
+**Spec:** `docs/superpowers/specs/2026-07-29-pi-timeout-design.md` (approved). Pi source for reference: `/Users/jamiefutch/projects/cloned/pi`.
 
 ## Global Constraints
 
 - Runtime: Node >= 22, Bun >= 1.3 (verified). ESM only (`"type": "module"`); TypeScript `strict: true`.
 - TDD everywhere: failing test -> run -> implement -> run -> commit. Each step is one action.
-- **Zero runtime dependencies.** `src/` may import only `node:` builtins. `@earendil-works/pi-coding-agent` is imported (runtime) only by `extensions/run-timeout.ts`.
+- **Zero runtime dependencies.** `src/` may import only `node:` builtins. `@earendil-works/pi-coding-agent` is imported (runtime) only by `extensions/pi-timeout.ts`.
 - **Units are seconds** (pi's bash `timeout` unit). Values must be positive finite numbers, clamped to `MAX_TIMEOUT_SECONDS = 2_147_483.647`.
 - **Semantics (hold in every task):** explicit model `timeout` always respected; `safe` never capped; `run -> maxSeconds ?? fallbackMaxSeconds`; `unknown -> fallbackMaxSeconds`; both settings absent -> extension inert (opt-in).
 - Imports use explicit `.ts` extensions (`allowImportingTsExtensions: true` + `noEmit: true`).
@@ -34,7 +34,7 @@
 | `src/config.ts` | Parse/validate/clamp/merge `runTimeout` (two keys). Pure. |
 | `src/load-settings.ts` | `readJsonFile`, `loadConfig(cwd, globalPath)`. `node:fs` only. |
 | `src/handler.ts` | `resolveTimeout` + `handleToolCall` (classify -> resolve -> mutate). Pure. |
-| `extensions/run-timeout.ts` | Thin pi `tool_call` wiring. Only pi import. |
+| `extensions/pi-timeout.ts` | Thin pi `tool_call` wiring. Only pi import. |
 | `test/classify.test.ts` | Table-driven classifier tests. |
 | `test/config.test.ts` | Config parse/merge/clamp tests. |
 | `test/load-settings.test.ts` | FS loader tests (temp dirs). |
@@ -57,7 +57,7 @@
 
 ```json
 {
-  "name": "pi-run-timeout",
+  "name": "pi-timeout",
   "version": "0.1.0",
   "description": "Pi package: cap run-style bash commands via runTimeout.maxSeconds / fallbackMaxSeconds in settings.json so pi never waits indefinitely.",
   "type": "module",
@@ -159,7 +159,7 @@ Expected: `1 passed`.
 
 ```bash
 git add package.json tsconfig.json vitest.config.ts .gitignore test/smoke.test.ts
-git commit -m "chore: scaffold pi-run-timeout package"
+git commit -m "chore: scaffold pi-timeout package"
 ```
 
 ---
@@ -324,7 +324,7 @@ Create `src/classify.ts`:
 
 ```typescript
 /**
- * Segment-aware command classifier for pi-run-timeout. Pure, no I/O.
+ * Segment-aware command classifier for pi-timeout. Pure, no I/O.
  *
  * Splits a command on chain/pipe operators, strips leading wrappers
  * (sudo/nohup/time/command/exec/env and VAR=val assignments), classifies each
@@ -537,7 +537,7 @@ Create `src/config.ts`:
 
 ```typescript
 /**
- * Settings parsing for pi-run-timeout. Pure, no I/O.
+ * Settings parsing for pi-timeout. Pure, no I/O.
  * Units are seconds (pi's bash `timeout` unit). Values must be positive finite
  * numbers and are clamped to MAX_TIMEOUT_SECONDS (pi's bash tool ceiling).
  */
@@ -629,7 +629,7 @@ import { loadConfig, readJsonFile } from "../src/load-settings.ts";
 let dir: string;
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "pi-run-timeout-"));
+  dir = mkdtempSync(join(tmpdir(), "pi-timeout-"));
 });
 
 afterEach(() => {
@@ -696,7 +696,7 @@ Create `src/load-settings.ts`:
 
 ```typescript
 /**
- * Filesystem loader for pi-run-timeout. Reads the global and project pi
+ * Filesystem loader for pi-timeout. Reads the global and project pi
  * settings.json files and merges the runTimeout config. node: builtins only;
  * this module never imports pi (the caller supplies the global settings path).
  */
@@ -853,7 +853,7 @@ Create `src/handler.ts`:
 
 ```typescript
 /**
- * Resolution + handler core for pi-run-timeout. Pure, no pi imports.
+ * Resolution + handler core for pi-timeout. Pure, no pi imports.
  * Decides the timeout for a bash tool call and applies it by mutating
  * input.timeout in place (pi's tool_call contract: event.input is mutable and
  * no re-validation runs after mutation).
@@ -918,10 +918,10 @@ git commit -m "feat: add timeout resolution and handler core"
 
 ---
 
-### Task 6: Pi extension wiring (`extensions/run-timeout.ts`)
+### Task 6: Pi extension wiring (`extensions/pi-timeout.ts`)
 
 **Files:**
-- Create: `extensions/run-timeout.ts`, `test/extension.test.ts`
+- Create: `extensions/pi-timeout.ts`, `test/extension.test.ts`
 
 **Interfaces:**
 - Consumes: `handleToolCall`, `ToolInput` (Task 5); `loadConfig` (Task 4); `RunTimeoutConfig` (Task 3). From `@earendil-works/pi-coding-agent`: `ExtensionAPI` (type-only), `isToolCallEventType` + `getSettingsPath` (runtime).
@@ -940,7 +940,7 @@ vi.mock("@earendil-works/pi-coding-agent", () => ({
   getAgentDir: () => "/mock/agent",
 }));
 
-import runTimeoutExtension from "../extensions/run-timeout.ts";
+import runTimeoutExtension from "../extensions/pi-timeout.ts";
 
 type Handler = (event: unknown, ctx: unknown) => Promise<unknown> | unknown;
 
@@ -1021,15 +1021,15 @@ describe("runTimeoutExtension", () => {
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run: `npx vitest run test/extension.test.ts`
-Expected: FAIL — cannot resolve `../extensions/run-timeout.ts`.
+Expected: FAIL — cannot resolve `../extensions/pi-timeout.ts`.
 
 - [ ] **Step 3: Write the implementation**
 
-Create `extensions/run-timeout.ts`:
+Create `extensions/pi-timeout.ts`:
 
 ```typescript
 /**
- * pi-run-timeout extension.
+ * pi-timeout extension.
  *
  * On every bash tool_call: load runTimeout config from merged pi settings
  * (project overrides global), classify the command, and inject a timeout cap
@@ -1078,7 +1078,7 @@ Expected: all tests pass (smoke, classify, config, load-settings, handler, exten
 - [ ] **Step 6: Commit**
 
 ```bash
-git add extensions/run-timeout.ts test/extension.test.ts
+git add extensions/pi-timeout.ts test/extension.test.ts
 git commit -m "feat: add pi tool_call extension wiring"
 ```
 
@@ -1098,7 +1098,7 @@ git commit -m "feat: add pi tool_call extension wiring"
 Create `README.md`:
 
 ````markdown
-# pi-run-timeout
+# pi-timeout
 
 A [pi](https://pi.dev) package that stops pi from waiting indefinitely when it
 runs commands through the `bash` tool — for example, when pi builds your
@@ -1139,7 +1139,7 @@ Add the absolute path to the package in your pi settings:
 ```json
 // ~/.pi/agent/settings.json
 {
-  "packages": ["/absolute/path/to/pi-run-timeout"]
+  "packages": ["/absolute/path/to/pi-timeout"]
 }
 ```
 
@@ -1150,13 +1150,13 @@ Restart pi. The extension loads automatically.
 The package is structured for publishing with no changes. Once published:
 
 ```json
-{ "packages": ["npm:pi-run-timeout"] }
+{ "packages": ["npm:pi-timeout"] }
 ```
 
 or
 
 ```json
-{ "packages": ["git:github.com/you/pi-run-timeout"] }
+{ "packages": ["git:github.com/you/pi-timeout"] }
 ```
 
 ## Configure
@@ -1281,7 +1281,7 @@ npm run typecheck # tsc --noEmit
 ```
 
 Architecture — all decision logic is pure and dependency-free under `src/`;
-only `extensions/run-timeout.ts` imports pi:
+only `extensions/pi-timeout.ts` imports pi:
 
 | Module | Responsibility |
 |--------|----------------|
@@ -1289,7 +1289,7 @@ only `extensions/run-timeout.ts` imports pi:
 | `src/config.ts` | Parse / validate / clamp / merge `runTimeout`. |
 | `src/load-settings.ts` | Read global + project `settings.json`. |
 | `src/handler.ts` | Resolve timeout and mutate the tool call input. |
-| `extensions/run-timeout.ts` | Thin pi `tool_call` wiring. |
+| `extensions/pi-timeout.ts` | Thin pi `tool_call` wiring. |
 
 ## License
 
@@ -1377,7 +1377,7 @@ rm -rf /tmp/pi-rt-demo
 
 ## Self-Review
 
-**1. Spec coverage** (against `docs/superpowers/specs/2026-07-29-pi-run-timeout-design.md`):
+**1. Spec coverage** (against `docs/superpowers/specs/2026-07-29-pi-timeout-design.md`):
 - §4 settings contract (two keys, seconds, clamp, opt-in, per-key merge) → Tasks 3, 4. ✔
 - §5 classification (segment-aware, wrappers, run/safe/unknown, combine rules) → Task 2. ✔
 - §6 resolution (explicit wins, safe never, run -> max ?? fallback, unknown -> fallback) → Task 5. ✔
@@ -1403,7 +1403,7 @@ rm -rf /tmp/pi-rt-demo
 
 ## Execution Handoff
 
-Plan complete and saved to `docs/superpowers/plans/2026-07-29-pi-run-timeout.md`. Two execution options:
+Plan complete and saved to `docs/superpowers/plans/2026-07-29-pi-timeout.md`. Two execution options:
 
 **1. Subagent-Driven (recommended)** — I dispatch a fresh subagent per task, review between tasks, fast iteration.
 
