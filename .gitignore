@@ -1,5 +1,36 @@
+# dependencies
 node_modules/
+
+# build output
 dist/
+
+# .NET (csharp-hang test)
+bin/
+obj/
+
+# test coverage
 coverage/
+
+# logs
 *.log
+
+# OS
 .DS_Store
+Thumbs.db
+
+# editors
+*.swp
+*.swo
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+
+# env
+.env
+.env.*
+
+# python (testing utilities)
+__pycache__/
+*.pyc
