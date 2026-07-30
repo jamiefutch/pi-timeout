@@ -1,0 +1,15 @@
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/bin/Release/net9.0/csharp-hang
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/bin/Release/net9.0/csharp-hang.deps.json
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/bin/Release/net9.0/csharp-hang.runtimeconfig.json
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/bin/Release/net9.0/csharp-hang.dll
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/bin/Release/net9.0/csharp-hang.pdb
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/obj/Release/net9.0/csharp-hang.GeneratedMSBuildEditorConfig.editorconfig
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/obj/Release/net9.0/csharp-hang.AssemblyInfoInputs.cache
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/obj/Release/net9.0/csharp-hang.AssemblyInfo.cs
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/obj/Release/net9.0/csharp-hang.csproj.CoreCompileInputs.cache
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/obj/Release/net9.0/csharp-hang.sourcelink.json
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/obj/Release/net9.0/csharp-hang.dll
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/obj/Release/net9.0/refint/csharp-hang.dll
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/obj/Release/net9.0/csharp-hang.pdb
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/obj/Release/net9.0/csharp-hang.genruntimeconfig.cache
+/Users/jamiefutch/projects/personal/pi-timeout/test/csharp-hang/obj/Release/net9.0/ref/csharp-hang.dll
