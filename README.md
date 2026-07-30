@@ -145,6 +145,28 @@ npm test          # vitest run — 6 tests
 npm run typecheck # tsc --noEmit — strict type check
 ```
 
+## Verify
+
+Test that the timeout extension works using the included C# app:
+
+```bash
+cd test/csharp-hang
+dotnet build -c Release
+./bin/Release/net9.0/csharp-hang
+```
+
+With default settings (`maxSeconds: 30`), the 10-second sleep should complete
+normally. To verify the cap fires, temporarily lower `maxSeconds` in
+`~/.pi/agent/settings.json`:
+
+```json
+{ "runTimeout": { "maxSeconds": 3 } }
+```
+
+Then re-run — pi kills the process at 3 seconds with a `timeout:3`
+error instead of finishing the 10-second sleep. Restore your settings
+after.
+
 ## Run
 
 ### Run it in pi (normal use)
