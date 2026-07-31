@@ -34,3 +34,8 @@ Thumbs.db
 # python (testing utilities)
 __pycache__/
 *.pyc
+
+# vscode
+.vscode/
+.superpowers
+*.code-workspace
