@@ -1,10 +1,18 @@
 {
   "name": "@jamiefutch/pi-timeout",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Pi package: cap run-style bash commands via runTimeout.maxSeconds / fallbackMaxSeconds in settings.json so pi never waits indefinitely.",
   "type": "module",
   "keywords": ["pi-package"],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jamiefutch/pi-timeout.git"
+  },
+  "homepage": "https://github.com/jamiefutch/pi-timeout#readme",
+  "bugs": {
+    "url": "https://github.com/jamiefutch/pi-timeout/issues"
+  },
   "engines": {
     "node": ">=22"
   },
